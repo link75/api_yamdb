@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import ValidationError, UniqueTogetherValidator
 
-from reviews.models import Genre, Review
+from reviews.models import Genre, Review, Comment
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -36,3 +36,13 @@ class ReviewSerializer(serializers.ModelSerializer):
             raise ValidationError(
                 'Нельзя оставлять больше одного отзыва!')
         return data
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(read_only=True,
+                                          slug_field='username')
+    review = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = '__all__'
