@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-User = get_user_model()
+# User = get_user_model()
 
 
 class Role(models.Model):
@@ -14,8 +14,8 @@ class User(models.Model):
                              related_name='user')
 
 
-# class Title(models.Model):
-#     pass
+class Title(models.Model):
+    pass
 
 
 class Genre(models.Model):
@@ -67,6 +67,9 @@ class Comment(models.Model):
     )
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE, related_name='comments',
+    )
+    title = models.ForeignKey(
+        Title, on_delete=models.CASCADE, related_name='comments'
     )
 
     def __str__(self):
