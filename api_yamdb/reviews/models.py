@@ -1,33 +1,26 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-# User = get_user_model()
+from users.models import User
 
 
 class Role(models.Model):
     pass
 
 
-class User(models.Model):
-    role = models.ForeignKey(Role, on_delete=models.CASCADE,
-                             related_name='user')
-
-
-class Title(models.Model):
-    pass
-
 
 class Genre(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
-    # title = models.ForeignKey(
-    #     Title, on_delete=models.CASCADE,
-    #     related_name='genre'
-    # )
 
     def __str__(self):
         return self.name
+
+
+class Title(models.Model):
+    pass
 
 
 class Review(models.Model):
@@ -37,10 +30,10 @@ class Review(models.Model):
     )
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='reviews')
-    # title = models.ForeignKey(
-    #     Title, on_delete=models.CASCADE,
-    #     related_name='genre'
-    # )
+    title = models.ForeignKey(
+        Title, on_delete=models.CASCADE,
+        related_name='reviews'
+    )
     pud_date = models.DateField(
         'Дата публикации', auto_now_add=True
     )
@@ -48,8 +41,8 @@ class Review(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['author', 'text'],
-                name='unique_author_text'
+                fields=['author', 'title'],
+                name='unique_review'
             )
         ]
 
@@ -73,6 +66,4 @@ class Comment(models.Model):
     )
 
     def __str__(self):
-        return '"{}" to review "{}" by author "{}"'.format(self.text,
-                                                           self.review,
-                                                           self.author)
+        return self.text
