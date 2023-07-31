@@ -4,11 +4,3 @@ venv/
 __pycache__/
 .pytest_cache
 .flake8
-
-reviews/
-api/
-pytest.ini
-README.md
-requirements.txt
-setup.cfg
-tests/
