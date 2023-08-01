@@ -1,9 +1,19 @@
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, filters
 from django.shortcuts import get_object_or_404
 
-from .serializers import ReviewSerializer, CommentSerializer
-from reviews.models import Review, Title
-from .permission import IsAdminOrAuthorOrReadOnly
+
+from .serializers import ReviewSerializer, CommentSerializer, GenreSerializer
+from reviews.models import Review, Title, Genre
+from .permission import IsAdminOrAuthorOrReadOnly, IsAdminOrReadOnly
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    filter_backends = (filters.SearchFilter, )
+    search_fields = ('name',)
+    lookup_field = 'slug'
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

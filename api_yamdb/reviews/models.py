@@ -1,7 +1,17 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-from users.models import User
+
+class Genre(models.Model):
+    name = models.CharField(
+        max_length=256,
+        verbose_name="Жанр",
+        help_text="Проверьте название жанра",
+    )
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Role(models.Model):

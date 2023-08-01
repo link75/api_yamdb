@@ -2,7 +2,15 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from django.shortcuts import get_object_or_404
 
-from reviews.models import Review, Comment, Title
+from reviews.models import Review, Comment, Title, Genre
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    lookup_field = 'slug'
+
+    class Meta:
+        model = Genre
+        fields = ('name', 'slug',)
 
 
 class ReviewSerializer(serializers.ModelSerializer):
