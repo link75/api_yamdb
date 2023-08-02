@@ -4,9 +4,9 @@ from rest_framework.filters import SearchFilter
 from django.shortcuts import get_object_or_404
 
 
-from .serializers import (ReviewSerializer, CommentSerializer, GenreSerializer, TitleSerializerGET, TitleSerializerPOST)
+from .serializers import (ReviewSerializer, CommentSerializer, GenreSerializer, TitleSerializerGET, TitleSerializerPOST, CategorySerializer)
 from reviews.models import Review, Title, Genre, Category
-from .permission import IsAdminModeratorOwnerOrReadOnly, IsAdminOrReadOnly
+from .permissions import IsAdminModeratorOwnerOrReadOnly, IsAdminOrReadOnly
 from .mixins import CreateDestroyListViewSet
 
 
@@ -18,7 +18,7 @@ class GenreViewSet(CreateDestroyListViewSet):
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
-    
+
 
 class TitleViewSet(CreateDestroyListViewSet):
     """Вьюсет для получения произведений."""
@@ -30,17 +30,18 @@ class TitleViewSet(CreateDestroyListViewSet):
         if self.action in SAFE_METHODS:
             return TitleSerializerGET
         return TitleSerializerPOST
-      
-      
- class CategoryViewSet(CreateDestroyListViewSet):
+
+
+class CategoryViewSet(CreateDestroyListViewSet):
     """Вьюсет для получения категорий."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (SearchFilter,)
+    permission_classes = (IsAdminOrReadOnly,)
     search_fields = ('name',)
-    lookup_field = 'slug'     
-    
-    
+    lookup_field = 'slug'
+
+
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (IsAdminModeratorOwnerOrReadOnly)
