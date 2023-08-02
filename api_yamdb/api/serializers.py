@@ -14,21 +14,13 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    title = serializers.PrimaryKeyRelatedField(read_only=True)
+    title = serializers.SlugRelatedField(
+        slug_field='name',
+        read_only=True,
+    )
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
-
-    class Meta:
-        model = Review
-        fields = '__all__'
-
-    validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('author', 'title')
-            )
-        ]
 
     def validate_review(self, data):
         title_id = self.context['view'].kwargs.get('title_id')
@@ -41,17 +33,20 @@ class ReviewSerializer(serializers.ModelSerializer):
             )
         return data
 
-    # def validate_score(self, value):
-    #     if value < 1 or value > 10:
-    #         raise serializers.ValidationError('Недопустимое значение!')
-    #     return value
+    class Meta:
+        model = Review
+        fields = '__all__'
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(read_only=True,
-                                          slug_field='username')
-    review = serializers.PrimaryKeyRelatedField(read_only=True)
-    title = serializers.PrimaryKeyRelatedField(read_only=True)
+    review = serializers.SlugRelatedField(
+        slug_field='text',
+        read_only=True
+    )
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
 
     class Meta:
         model = Comment
