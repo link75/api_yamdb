@@ -2,16 +2,51 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from django.shortcuts import get_object_or_404
 
-from reviews.models import Review, Comment, Title, Genre
+from reviews.models import Category, Genre, Title, Review
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Category
+        exclude = ('id',)
+        lookup_field = 'slug'
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    lookup_field = 'slug'
 
     class Meta:
         model = Genre
-        fields = ('name', 'slug',)
+        exclude = ('id',)
+        lookup_field = 'slug'
 
+
+class TitleSerializerGET(serializers.ModelSerializer):
+
+    category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(read_only=True, many=True)
+    rating = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Title
+        fields = '__all__'
+
+
+class TitleSerializerPOST(serializers.ModelSerializer):
+
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug'
+    )
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
+        slug_field='slug',
+        many=True
+    )
+
+    class Meta:
+        model = Title
+      
 
 class ReviewSerializer(serializers.ModelSerializer):
     title = serializers.SlugRelatedField(
