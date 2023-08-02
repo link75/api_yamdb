@@ -12,7 +12,7 @@ class Category(models.Model):
         verbose_name='Название категории',
     )
     slug = models.SlugField(
-        max_length=64,
+        max_length=50,
         unique=True,
         verbose_name='slug',
     )
@@ -30,7 +30,7 @@ class Genre(models.Model):
         verbose_name='Название жанра'
     )
     slug = models.SlugField(
-        max_length=64,
+        max_length=50,
         verbose_name='slug',
         unique=True,
     )
@@ -79,12 +79,8 @@ class Title(models.Model):
     def __str__(self):
         return self.name
 
-      
+  
 class Role(models.Model):
-    pass
-
-
-class Title(models.Model):
     pass
 
 
