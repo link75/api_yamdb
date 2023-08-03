@@ -6,40 +6,58 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('reviews', '0003_auto_20230803_1235'),
+        ("reviews", "0003_auto_20230803_1235"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='review',
-            options={'ordering': ['-pub_date'], 'verbose_name': 'Отзыв', 'verbose_name_plural': 'Отзывы'},
+            name="review",
+            options={
+                "ordering": ["-pub_date"],
+                "verbose_name": "Отзыв",
+                "verbose_name_plural": "Отзывы",
+            },
         ),
         migrations.AlterField(
-            model_name='comment',
-            name='author',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to=settings.AUTH_USER_MODEL, verbose_name='Пользователь'),
+            model_name="comment",
+            name="author",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="comments",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Пользователь",
+            ),
         ),
         migrations.AlterField(
-            model_name='comment',
-            name='review',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='reviews.review', verbose_name='Отзыв'),
+            model_name="comment",
+            name="review",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="comments",
+                to="reviews.review",
+                verbose_name="Отзыв",
+            ),
         ),
         migrations.AlterField(
-            model_name='comment',
-            name='text',
-            field=models.TextField(verbose_name='Текст'),
+            model_name="comment",
+            name="text",
+            field=models.TextField(verbose_name="Текст"),
         ),
         migrations.AlterField(
-            model_name='review',
-            name='text',
-            field=models.TextField(verbose_name='Текст'),
+            model_name="review",
+            name="text",
+            field=models.TextField(verbose_name="Текст"),
         ),
         migrations.AlterField(
-            model_name='review',
-            name='title',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reviews', to='reviews.title', verbose_name='Произведение'),
+            model_name="review",
+            name="title",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="reviews",
+                to="reviews.title",
+                verbose_name="Произведение",
+            ),
         ),
     ]
