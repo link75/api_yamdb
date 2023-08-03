@@ -2,12 +2,15 @@ from rest_framework import permissions, viewsets, filters
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.filters import SearchFilter
 from django.shortcuts import get_object_or_404
+from django.db.models import Avg
+from django_filters.rest_framework import DjangoFilterBackend
 
 
-from .serializers import (ReviewSerializer, CommentSerializer, GenreSerializer, TitleSerializerGET, TitleSerializerPOST, CategorySerializer)
+from .serializers import (ReviewSerializer, CommentSerializer, GenreSerializer, TitleSerializer, TitlePOSTSerializer, CategorySerializer)
 from reviews.models import Review, Title, Genre, Category
 from .permissions import IsAdminModeratorOwnerOrReadOnly, IsAdminOrReadOnly
 from .mixins import CreateDestroyListViewSet
+from .filters import TitleFilter
 
 
 class GenreViewSet(CreateDestroyListViewSet):
@@ -20,16 +23,20 @@ class GenreViewSet(CreateDestroyListViewSet):
     lookup_field = 'slug'
 
 
-class TitleViewSet(CreateDestroyListViewSet):
+class TitleViewSet(viewsets.ModelViewSet):
     """Вьюсет для получения произведений."""
-    queryset = Title.objects.all()
-    filter_backends = (SearchFilter,)
+    queryset = Title.objects.annotate(rating=Avg('reviews__score')).order_by(
+        'name'
+    )
+    serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
-        if self.action in SAFE_METHODS:
-            return TitleSerializerGET
-        return TitleSerializerPOST
+        if self.request.method in ('POST', 'PATCH'):
+            return TitlePOSTSerializer
+        return TitleSerializer
 
 
 class CategoryViewSet(CreateDestroyListViewSet):

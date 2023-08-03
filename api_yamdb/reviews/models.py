@@ -57,11 +57,10 @@ class Title(models.Model):
         max_length=512,
         verbose_name='Описание',
         blank=True,
-        null=True,
     )
     genre = models.ManyToManyField(
         Genre,
-        related_name='titles'
+        through='GenreTitle'
     )
     category = models.ForeignKey(
         Category,
@@ -78,6 +77,22 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class GenreTitle(models.Model):
+    genre = models.ForeignKey(
+        Genre,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return f'{self.title} - {self.genre}'
 
   
 class Role(models.Model):
