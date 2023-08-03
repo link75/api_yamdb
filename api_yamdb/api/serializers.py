@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 from django.shortcuts import get_object_or_404
 
 from reviews.models import Category, Genre, Title, Review, Comment
@@ -51,40 +50,39 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    title = serializers.SlugRelatedField(
-        slug_field='name',
-        read_only=True,
-    )
-    author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
-    )
-
-    def validate_review(self, data):
-        title_id = self.context['view'].kwargs.get('title_id')
-        author = self.context.get('request').user
-        title = get_object_or_404(Title, id=title_id)
-        if (title.reviews.filter(author=author).exists()
-           and self.context.get('request').method != 'PATCH'):
-            raise serializers.ValidationError(
-                'Нельзя оставлять больше одного отзыва!'
-            )
-        return data
-
-    class Meta:
-        model = Review
-        fields = '__all__'
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    review = serializers.SlugRelatedField(
-        slug_field='text',
-        read_only=True
-    )
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True
     )
 
     class Meta:
-        model = Comment
         fields = '__all__'
+        model = Review
+        read_only_fields = ('title',)
+
+    def validate(self, data):
+        title_id = self.context['view'].kwargs.get('title_id')
+        author = self.context.get('request').user
+        title = get_object_or_404(Title, id=title_id)
+        if (title.reviews.filter(author=author).exists()
+           and self.context.get('request').method != 'PATCH'):
+            raise serializers.ValidationError(
+                'Можно оставлять только один отзыв!'
+            )
+        return data
+
+    def validate_score(self, value):
+        if value < 1 or value > 10:
+            raise serializers.ValidationError('Недопустимое значение!')
+        return value
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True, slug_field='username'
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Comment
+        read_only_fields = ('review',)
