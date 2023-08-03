@@ -1,6 +1,7 @@
 import csv
 
 from django.core.management.base import BaseCommand
+
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
@@ -11,7 +12,6 @@ class Command(BaseCommand):
     help = 'load data from csv'
 
     def handle(self, *args, **options):
-
 
         with open(
             'static/data/category.csv',

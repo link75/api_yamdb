@@ -28,9 +28,9 @@ class UserViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     @action(
-            detail=False,
-            methods=['get', 'patch'],
-            permission_classes=[IsAuthenticated]
+        detail=False,
+        methods=['get', 'patch'],
+        permission_classes=[IsAuthenticated]
     )
     def me(self, request):
         if request.method == 'GET':
