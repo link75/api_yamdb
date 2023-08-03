@@ -52,7 +52,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
-def registration(request):
+def signup(request):
     serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     username = serializer.validated_data.get('username')
@@ -65,14 +65,15 @@ def registration(request):
         )
     except IntegrityError:
         raise ValidationError(
-            'username or email already exists', status.HTTP_400_BAD_REQUEST
+            'Данное имя пользователя (username) или email уже есть в базе!',
+            status.HTTP_400_BAD_REQUEST
         )
 
     confirmation_code = default_token_generator.make_token(user)
 
     try:
         send_mail(
-            'Confirmation code',
+            'Код подтверждения',
             f'{confirmation_code}',
             f'{settings.DEFAULT_EMAIL_TO_SEND_FROM}',
             [email],
@@ -84,7 +85,7 @@ def registration(request):
 
 
 @api_view(['POST'])
-def confirmation_code(request):
+def generate_token(request):
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
