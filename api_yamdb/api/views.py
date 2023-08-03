@@ -1,12 +1,14 @@
-from rest_framework import permissions, viewsets, filters
-from rest_framework.permissions import SAFE_METHODS
+from rest_framework import viewsets
 from rest_framework.filters import SearchFilter
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 
 
-from .serializers import (ReviewSerializer, CommentSerializer, GenreSerializer, TitleSerializer, TitlePOSTSerializer, CategorySerializer)
+from .serializers import (
+    ReviewSerializer, CommentSerializer, GenreSerializer,
+    TitleSerializer, TitlePOSTSerializer, CategorySerializer
+)
 from reviews.models import Review, Title, Genre, Category
 from .permissions import IsAuthorAdminModerOrReadOnly, IsAdminOrReadOnly
 from .mixins import CreateDestroyListViewSet
@@ -50,6 +52,7 @@ class CategoryViewSet(CreateDestroyListViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """Вьюсет для получения ревью."""
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthorAdminModerOrReadOnly]
 
@@ -63,6 +66,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+    """Вьюсет для получения комментариев."""
     serializer_class = CommentSerializer
     permission_classes = [IsAuthorAdminModerOrReadOnly]
 
