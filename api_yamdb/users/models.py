@@ -15,7 +15,7 @@ class User(AbstractUser):
     ]
 
     email = models.EmailField(
-        'email',
+        'Email',
         max_length=254,
         unique=True
     )
@@ -35,7 +35,7 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return self.role == self.ADMIN or self.is_superuser
-    
+
     @property
     def is_moderator(self):
         return self.role == self.MODERATOR

@@ -29,7 +29,7 @@ class RegistrationSerializer(serializers.Serializer):
     def validate_username(self, value):
         if value.lower() == 'me':
             raise serializers.ValidationError(
-                'Пользователь не может быть "me"'
+                'Имя пользователя не может быть "me"!'
             )
         return value
 
