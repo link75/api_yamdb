@@ -1,5 +1,3 @@
-from smtplib import SMTPResponseException
-
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db import IntegrityError
@@ -78,18 +76,16 @@ def signup(request):
         )
 
     confirmation_code = default_token_generator.make_token(user)
+    print(confirmation_code)
 
-    try:
-        send_mail(
-            'Код подтверждения',
-            f'{confirmation_code}',
-            f'{settings.DEFAULT_EMAIL_TO_SEND_FROM}',
-            [email],
-            fail_silently=False,
-        )
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
-    except SMTPResponseException:
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    send_mail(
+        'Код подтверждения',
+        f'{confirmation_code}',
+        f'{settings.DEFAULT_EMAIL_TO_SEND_FROM}',
+        [email],
+        fail_silently=False,
+    )
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
