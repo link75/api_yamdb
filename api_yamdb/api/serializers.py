@@ -44,14 +44,14 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('name', 'slug')
+        exclude = ('id',)
 
 
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        fields = ('name', 'slug')
+        exclude = ('id',)
 
 
 class TitlePOSTSerializer(serializers.ModelSerializer):
@@ -68,8 +68,8 @@ class TitlePOSTSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(many=False, required=False)
-    genre = GenreSerializer(many=True, required=False)
+    category = CategorySerializer(read_only=True, many=False, required=False)
+    genre = GenreSerializer(read_only=True, many=True, required=False)
     rating = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -97,11 +97,12 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ('title',)
 
     def validate(self, data):
+        if not self.context.get('request').method == 'POST':
+            return data
         title_id = self.context['view'].kwargs.get('title_id')
         author = self.context.get('request').user
         title = get_object_or_404(Title, id=title_id)
-        if (title.reviews.filter(author=author).exists()
-           and self.context.get('request').method != 'PATCH'):
+        if title.reviews.filter(author=author).exists():
             raise serializers.ValidationError(
                 'Можно оставлять только один отзыв!'
             )

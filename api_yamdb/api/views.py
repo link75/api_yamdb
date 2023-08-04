@@ -17,7 +17,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, Review, Title, User
 from .filters import TitleFilter
-from .mixins import CreateDestroyListViewSet
+from .mixins import CreateDestroyListMixin
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
                           IsAuthorAdminModerOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
@@ -36,9 +36,9 @@ class UserViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     @action(
-            detail=False,
-            methods=['get', 'patch'],
-            permission_classes=[IsAuthenticated]
+        detail=False,
+        methods=['get', 'patch'],
+        permission_classes=[IsAuthenticated]
     )
     def me(self, request):
         if request.method == 'GET':
@@ -117,15 +117,26 @@ def generate_token(request):
     )
 
 
-class GenreViewSet(CreateDestroyListViewSet):
-    """Вьюсет для получения жанров."""
-
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
+class GenreCategoryBaseViewSet(CreateDestroyListMixin):
+    """Базовый вьюсет для категорий и жанров."""
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
+
+
+class GenreViewSet(GenreCategoryBaseViewSet):
+    """Вьюсет для получения жанров."""
+
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+
+class CategoryViewSet(GenreCategoryBaseViewSet):
+    """Вьюсет для получения категорий."""
+
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -143,17 +154,6 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.request.method in ('POST', 'PATCH'):
             return TitlePOSTSerializer
         return TitleSerializer
-
-
-class CategoryViewSet(CreateDestroyListViewSet):
-    """Вьюсет для получения категорий."""
-
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-    filter_backends = (SearchFilter,)
-    permission_classes = (IsAdminOrReadOnly,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
