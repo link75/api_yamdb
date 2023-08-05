@@ -49,6 +49,7 @@ class User(AbstractUser):
 
 
 class CategoryGenreBase(models.Model):
+    """Базовый класс для категорий и жанров."""
     name = models.CharField(
         max_length=MAX_NAME_LENGTH
     )
@@ -69,7 +70,7 @@ class CategoryGenreBase(models.Model):
 class Category(CategoryGenreBase):
     """Описание модели категорий."""
 
-    class Meta:
+    class Meta(CategoryGenreBase.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
@@ -77,7 +78,7 @@ class Category(CategoryGenreBase):
 class Genre(CategoryGenreBase):
     """Описание модели жанров."""
 
-    class Meta:
+    class Meta(CategoryGenreBase.Meta):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
@@ -121,6 +122,7 @@ class Title(models.Model):
 
 
 class ReviewCommentBase(models.Model):
+    """Базовый класс для отзывов и комментариев."""
     text = models.TextField(
         verbose_name='Текст',
     )
@@ -156,7 +158,7 @@ class Review(ReviewCommentBase):
         ],
     )
 
-    class Meta:
+    class Meta(ReviewCommentBase.Meta):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         default_related_name = 'reviews'
@@ -179,7 +181,7 @@ class Comment(ReviewCommentBase):
         verbose_name='Отзыв',
     )
 
-    class Meta:
+    class Meta(ReviewCommentBase.Meta):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         default_related_name = 'comments'
