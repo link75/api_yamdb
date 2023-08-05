@@ -19,12 +19,12 @@ def validate_username(value):
         raise ValidationError(f"Имя пользователя не может быть '{value}'!")
 
     valid_username_pattern = re.compile(r'[\w.@+-]+')
-    bad_characters_in_pattern = list(
+    bad_characters_in_username = list(
         filter(None, valid_username_pattern.split(value))
     )
 
-    if bad_characters_in_pattern:
+    if bad_characters_in_username:
         raise ValidationError(
-            f'Недопустимые символы {bad_characters_in_pattern} '
+            f'Недопустимые символы {bad_characters_in_username} '
             f'в имени пользователя {value}!'
         )
