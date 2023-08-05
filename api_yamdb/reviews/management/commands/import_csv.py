@@ -1,8 +1,7 @@
 import csv
 
 from django.core.management.base import BaseCommand
-from reviews.models import Category, Comment, Genre, Review, Title
-from users.models import User
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 ThroughModel = Title.genre.through
 
@@ -12,6 +11,25 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+        with open(
+            'static/data/users.csv',
+            encoding="utf-8-sig"
+        ) as csv_file:
+
+            csv_reader = csv.DictReader(csv_file, delimiter=',',)
+            for row in csv_reader:
+                id = row['id']
+                username = row['username']
+                email = row['email']
+                role = row['role']
+                bio = row['bio']
+                first_name = row['first_name']
+                last_name = row['last_name']
+                user = User(
+                    id=id, username=username, email=email, role=role, bio=bio,
+                    first_name=first_name, last_name=last_name
+                )
+                user.save()
 
         with open(
             'static/data/category.csv',
@@ -117,23 +135,3 @@ class Command(BaseCommand):
                     pub_date=pub_date
                 )
                 comment.save()
-
-        with open(
-            'static/data/users.csv',
-            encoding="utf-8-sig"
-        ) as csv_file:
-
-            csv_reader = csv.DictReader(csv_file, delimiter=',',)
-            for row in csv_reader:
-                id = row['id']
-                username = row['username']
-                email = row['email']
-                role = row['role']
-                bio = row['bio']
-                first_name = row['first_name']
-                last_name = row['last_name']
-                user = User(
-                    id=id, username=username, email=email, role=role, bio=bio,
-                    first_name=first_name, last_name=last_name
-                )
-                user.save()
