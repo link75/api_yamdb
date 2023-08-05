@@ -62,9 +62,9 @@ class TitlePOSTSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True, many=False, required=False)
-    genre = GenreSerializer(read_only=True, many=True, required=False)
-    rating = serializers.IntegerField(read_only=True)
+    category = CategorySerializer(many=False, required=False)
+    genre = GenreSerializer(many=True, required=False)
+    rating = serializers.IntegerField()
 
     class Meta:
         model = Title
@@ -77,6 +77,7 @@ class TitleSerializer(serializers.ModelSerializer):
             'category',
             'rating',
         )
+        ready_only_fields = ('category', 'genre', 'rating')
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -104,7 +105,10 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate_score(self, value):
         if value < 1 or value > 10:
-            raise serializers.ValidationError('Недопустимое значение!')
+            raise serializers.ValidationError(
+                f'Недопустимое значение: {value}! '
+                'Принимаются значения от 1 до 10.'
+            )
         return value
 
 
