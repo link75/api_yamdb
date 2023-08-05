@@ -2,8 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from .constants import MAX_NAME_LENGTH, MAX_SLUG_LENGTH
-from .validators import validate_year
+from .constants import (EMAIL_MAX_LENGTH, NAME_MAX_LENGTH, SLUG_MAX_LENGTH,
+                        USERNAME_MAX_LENGTH)
+from .validators import validate_username, validate_year
 
 
 class User(AbstractUser):
@@ -18,15 +19,22 @@ class User(AbstractUser):
         (ADMIN, 'Admin'),
     ]
 
+    username = models.CharField(
+        'Имя пользователя',
+        max_length=USERNAME_MAX_LENGTH,
+        unique=True,
+        validators=[validate_username]
+    )
+
     email = models.EmailField(
         'Email',
-        max_length=254,
+        max_length=EMAIL_MAX_LENGTH,
         unique=True
     )
     bio = models.TextField('Биография', blank=True)
     role = models.CharField(
         'Роль',
-        max_length=9,
+        max_length=max(len(choice[0]) for choice in USER_ROLES),
         choices=USER_ROLES,
         default=USER,
     )
@@ -38,7 +46,10 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN or self.is_superuser
+        return (
+            self.role == self.ADMIN
+            or self.is_superuser
+            or self.is_staff)
 
     @property
     def is_moderator(self):
@@ -51,10 +62,10 @@ class User(AbstractUser):
 class CategoryGenreBase(models.Model):
     """Базовый класс для категорий и жанров."""
     name = models.CharField(
-        max_length=MAX_NAME_LENGTH
+        max_length=NAME_MAX_LENGTH
     )
     slug = models.SlugField(
-        max_length=MAX_SLUG_LENGTH,
+        max_length=SLUG_MAX_LENGTH,
         unique=True,
         verbose_name='slug'
     )
@@ -87,7 +98,7 @@ class Title(models.Model):
     """Описание модели произведений."""
 
     name = models.CharField(
-        max_length=MAX_NAME_LENGTH,
+        max_length=NAME_MAX_LENGTH,
         verbose_name='Произведение'
     )
     year = models.PositiveIntegerField(

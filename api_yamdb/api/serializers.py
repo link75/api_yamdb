@@ -1,8 +1,9 @@
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.validators import UnicodeUsernameValidator
 from rest_framework import serializers
 
+from reviews.constants import EMAIL_MAX_LENGTH, USERNAME_MAX_LENGTH
 from reviews.models import Category, Comment, Genre, Review, Title, User
+from reviews.validators import validate_username
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -22,22 +23,15 @@ class UserSerializer(serializers.ModelSerializer):
 class RegistrationSerializer(serializers.Serializer):
 
     username = serializers.CharField(
-        max_length=150,
-        validators=[UnicodeUsernameValidator()]
+        max_length=USERNAME_MAX_LENGTH,
+        validators=[validate_username]
     )
-    email = serializers.EmailField(max_length=254)
-
-    def validate_username(self, value):
-        if value.lower() == 'me':
-            raise serializers.ValidationError(
-                'Имя пользователя не может быть "me"!'
-            )
-        return value
+    email = serializers.EmailField(max_length=EMAIL_MAX_LENGTH)
 
 
 class TokenSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=150)
-    confirmation_code = serializers.CharField(max_length=254)
+    username = serializers.CharField(max_length=USERNAME_MAX_LENGTH)
+    confirmation_code = serializers.CharField()
 
 
 class CategorySerializer(serializers.ModelSerializer):

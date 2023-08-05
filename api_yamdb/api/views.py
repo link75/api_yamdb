@@ -1,12 +1,10 @@
-from smtplib import SMTPResponseException
-
 from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from django.contrib.auth.tokens import default_token_generator
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view
 from rest_framework.exceptions import ValidationError
@@ -15,7 +13,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from reviews.models import Category, Genre, Review, Title, User
 from .filters import TitleFilter
 from .mixins import CreateDestroyListMixin
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
@@ -24,9 +21,12 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegistrationSerializer,
                           ReviewSerializer, TitlePOSTSerializer,
                           TitleSerializer, TokenSerializer, UserSerializer)
+from reviews.models import Category, Genre, Review, Title, User
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    """Вьюсет для получения пользователя."""
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (IsAdmin,)
@@ -78,18 +78,14 @@ def signup(request):
         )
 
     confirmation_code = default_token_generator.make_token(user)
-
-    try:
-        send_mail(
-            'Код подтверждения',
-            f'{confirmation_code}',
-            f'{settings.DEFAULT_EMAIL_TO_SEND_FROM}',
-            [email],
+    send_mail(
+            subject='Код подтверждения для YaMDb',
+            message=f'Код подтверждения: {confirmation_code}',
+            from_email=settings.DEFAULT_EMAIL_TO_SEND_FROM,
+            recipient_list=[user.email],
             fail_silently=False,
-        )
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
-    except SMTPResponseException:
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    )
+    return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -119,6 +115,7 @@ def generate_token(request):
 
 class GenreCategoryBaseViewSet(CreateDestroyListMixin):
     """Базовый вьюсет для категорий и жанров."""
+
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
