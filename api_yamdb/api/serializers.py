@@ -1,20 +1,51 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from reviews.models import Category, Comment, Genre, Review, Title
+
+from reviews.constants import EMAIL_MAX_LENGTH, USERNAME_MAX_LENGTH
+from reviews.models import Category, Comment, Genre, Review, Title, User
+from reviews.validators import validate_username
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
+        )
+
+
+class RegistrationSerializer(serializers.Serializer):
+
+    username = serializers.CharField(
+        max_length=USERNAME_MAX_LENGTH,
+        validators=[validate_username]
+    )
+    email = serializers.EmailField(max_length=EMAIL_MAX_LENGTH)
+
+
+class TokenSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=USERNAME_MAX_LENGTH)
+    confirmation_code = serializers.CharField()
 
 
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('name', 'slug')
+        exclude = ('id',)
 
 
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        fields = ('name', 'slug')
+        exclude = ('id',)
 
 
 class TitlePOSTSerializer(serializers.ModelSerializer):
@@ -33,7 +64,7 @@ class TitlePOSTSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer(many=False, required=False)
     genre = GenreSerializer(many=True, required=False)
-    rating = serializers.IntegerField(read_only=True)
+    rating = serializers.IntegerField()
 
     class Meta:
         model = Title
@@ -46,6 +77,7 @@ class TitleSerializer(serializers.ModelSerializer):
             'category',
             'rating',
         )
+        ready_only_fields = ('category', 'genre', 'rating')
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -60,11 +92,12 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ('title',)
 
     def validate(self, data):
+        if not self.context.get('request').method == 'POST':
+            return data
         title_id = self.context['view'].kwargs.get('title_id')
         author = self.context.get('request').user
         title = get_object_or_404(Title, id=title_id)
-        if (title.reviews.filter(author=author).exists()
-           and self.context.get('request').method != 'PATCH'):
+        if title.reviews.filter(author=author).exists():
             raise serializers.ValidationError(
                 'Можно оставлять только один отзыв!'
             )
@@ -72,7 +105,10 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate_score(self, value):
         if value < 1 or value > 10:
-            raise serializers.ValidationError('Недопустимое значение!')
+            raise serializers.ValidationError(
+                f'Недопустимое значение: {value}! '
+                'Принимаются значения от 1 до 10.'
+            )
         return value
 
 
