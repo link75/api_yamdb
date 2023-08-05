@@ -77,7 +77,7 @@ class TitleSerializer(serializers.ModelSerializer):
             'category',
             'rating',
         )
-        ready_only_fields = ('category', 'genre', 'rating')
+        read_only_fields = fields
 
 
 class ReviewSerializer(serializers.ModelSerializer):
